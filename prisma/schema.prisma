@@ -137,6 +137,10 @@ model Operador {
   despachosChofer           DespachoMuestra[]
   ensayesCompresion         EnsayeCompresion[]
   fotosEnsayeCompresion     FotoEnsayeCompresion[]
+  rol                       String              @default("OPERADOR_CAMPO")
+  pinHash                   String?
+  dispositivos              DispositivoMovil[]
+  fotosMuestra              FotoMuestra[]
 }
 
 model Catalogo {
@@ -231,6 +235,15 @@ model Muestra {
   emisionesHojaCampo        EmisionHojaCampo[]
   colado                    Colado?            @relation(fields: [coladoId], references: [id], onDelete: Restrict)
   itemsDespacho             ItemDespachoMuestra[]
+  latitud                   Float?
+  longitud                  Float?
+  precisionM                Float?
+  altitudM                  Float?
+  gpsCapturadoEn            DateTime?
+  gpsEstado                 String?
+  dispositivoOrigenId       String?
+  dispositivoOrigen         DispositivoMovil?   @relation(fields: [dispositivoOrigenId], references: [id])
+  fotos                     FotoMuestra[]
 
   @@unique([coladoId, numeroDentroColado])
   @@index([fechaMuestreo])
@@ -279,6 +292,12 @@ model Colado {
   versionPerfil             VersionPerfil? @relation(fields: [versionPerfilId], references: [id])
   muestras                  Muestra[]
   auditorias                Auditoria[]
+  latitud                   Float?
+  longitud                  Float?
+  precisionM                Float?
+  altitudM                  Float?
+  gpsCapturadoEn            DateTime?
+  gpsEstado                 String?
 
   @@index([fechaColado])
   @@index([cliente, obra])
@@ -671,6 +690,7 @@ enum CodigoModulo {
   CURVAS_FC_FOTOS
   REPORTES_AVANZADOS
   DIGITALIZACION_OCR
+  EXTENSION_CAMPO_MOVIL
 }
 
 model SuscripcionLocal {
@@ -919,4 +939,57 @@ enum TipoFotoEnsaye {
   ROTURA_FRACTURA
   DETALLE_FALLA
   MANOMETRO_PRENSA
+}
+
+model DispositivoMovil {
+  id                  String        @id @default(cuid())
+  deviceUuid          String        @unique
+  nombre              String
+  modelo              String?
+  plataforma          String        @default("ANDROID")
+  appVersion          String?
+  codigoEnrolamiento  String?       @unique
+  codigoExpiraEn      DateTime?
+  estado              String        @default("PENDIENTE") // PENDIENTE, ACTIVO, BLOQUEADO, DADO_DE_BAJA
+  ultimoAcceso        DateTime?
+  ipUltimoAcceso      String?
+  tokenRevocadoEn     DateTime?
+  operadorAsignadoId  String?
+  operadorAsignado    Operador?     @relation(fields: [operadorAsignadoId], references: [id])
+  muestras            Muestra[]
+  fotos               FotoMuestra[]
+  creadoEn            DateTime      @default(now())
+  actualizadoEn       DateTime      @updatedAt
+
+  @@index([estado])
+  @@index([codigoEnrolamiento])
+}
+
+model FotoMuestra {
+  id                      String            @id @default(cuid())
+  muestraId               String
+  categoria               String            @default("MUESTREO_OLLA") // MUESTREO_OLLA, CONO_REVENIMIENTO, PROBETAS_MOLDEADAS, REMISION_CONCRETERA, CONDICION_CURADO_OBRA, RECOLECCION_DESPACHO, OTRA
+  nombreSeguro            String
+  mimeType                String            @default("image/jpeg")
+  tamanoBytes             Int
+  hashSha256              String
+  rutaRelativa            String            @unique
+  anchoPx                 Int?
+  altoPx                  Int?
+  latitud                 Float?
+  longitud                Float?
+  precisionM              Float?
+  exifJson                String?
+  capturadaEnDispositivo  DateTime
+  sincronizadaEn          DateTime          @default(now())
+  dispositivoId           String?
+  subidoPorId             String?
+  muestra                 Muestra           @relation(fields: [muestraId], references: [id], onDelete: Cascade)
+  dispositivo             DispositivoMovil? @relation(fields: [dispositivoId], references: [id])
+  subidoPor               Operador?         @relation(fields: [subidoPorId], references: [id])
+  creadoEn                DateTime          @default(now())
+
+  @@index([muestraId])
+  @@index([dispositivoId])
+  @@index([categoria])
 }

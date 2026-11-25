@@ -10,6 +10,7 @@ export type View =
   | "curvas"
   | "ensayos"
   | "inventario"
+  | "dispositivos"
   | "personalizacion"
   | "configuracion";
 
@@ -33,6 +34,10 @@ export interface Sample {
   obra: string;
   ciudad?: string;
   coordenadasColado?: string;
+  latitud?: number | null;
+  longitud?: number | null;
+  precisionM?: number | null;
+  gpsEstado?: string | null;
   direccion?: string;
   sistema?: string;
   noMuestra: string;

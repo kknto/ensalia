@@ -13,11 +13,13 @@ import {
   PlusCircle,
   Settings as SettingsIcon,
   ShieldCheck,
+  Smartphone,
   Truck,
 } from "lucide-react";
 
 import ColadosPanel from "@/components/ColadosPanel";
 import InventoryPanel from "@/components/InventoryPanel";
+import { DevicesPanel } from "@/components/DevicesPanel";
 import PersonalizationPanel from "@/components/personalizacion/PersonalizationPanel";
 import TestSchedulePanel from "@/components/TestSchedulePanel";
 import { OutgoingSamplesDashboard } from "@/features/outgoing-samples/components/OutgoingSamplesDashboard";
@@ -127,6 +129,8 @@ function HomeContent() {
         return "fc_curves";
       case "inventario":
         return "inventario";
+      case "dispositivos":
+        return "dispositivos";
       case "salidas":
         return "despachos";
       case "personalizacion":
@@ -595,6 +599,7 @@ function HomeContent() {
       title: "Metrología y Configuración",
       items: [
         { key: "inventario" as View, label: "Inventario", icon: Boxes },
+        { key: "dispositivos" as View, label: "Dispositivos Móviles", icon: Smartphone },
         { key: "personalizacion" as View, label: "Personalización", icon: Palette },
         { key: "configuracion" as View, label: "Configuración", icon: SettingsIcon },
       ],
@@ -665,6 +670,7 @@ function HomeContent() {
                   curvas: "Curvas y Ensayes f'c",
                   ensayos: "Programa de ensayes",
                   inventario: "Inventario",
+                  dispositivos: "Dispositivos Móviles",
                   personalizacion: "Personalización",
                   configuracion: "Configuración",
                 } as Record<View, string>
@@ -826,6 +832,10 @@ function HomeContent() {
               }
             />
           </FeatureGate>
+        )}
+
+        {view === "dispositivos" && (
+          <DevicesPanel />
         )}
 
         {view === "personalizacion" && (

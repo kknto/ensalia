@@ -334,4 +334,50 @@ export const HELP_CONTENT: Record<string, HelpSection> = {
       },
     ],
   },
+
+  dispositivos: {
+    clave: "dispositivos",
+    titulo: "Control y Enrolamiento de Dispositivos Móviles",
+    subtitulo: "Autorización segura de tabletas y teléfonos de campo (Android)",
+    objetivo:
+      "Gestionar y autorizar las tabletas y teléfonos de brigadas de campo que sincronizan datos, fotografías forenses y coordenadas GPS. Permite enrolar mediante código QR o código de un solo uso, y revocar o bloquear dispositivos extraviados o no autorizados.",
+    pasos: [
+      {
+        numero: 1,
+        titulo: "Vincular nuevo dispositivo",
+        descripcion:
+          "Haz clic en 'Vincular nuevo dispositivo', escribe un nombre identificador (ej. 'Tableta Obra Norte - Samsung Tab A9') y presiona 'Generar Código y QR'.",
+      },
+      {
+        numero: 2,
+        titulo: "Enrolar desde el teléfono o tableta",
+        descripcion:
+          "En la app móvil de campo, selecciona vincular y escanea el código QR en pantalla con la cámara, o ingresa el código alfanumérico de un solo uso (ej. ENS-8392).",
+      },
+      {
+        numero: 3,
+        titulo: "Protección de hardware y sincronización",
+        descripcion:
+          "Al enrolarse, el hardware del dispositivo queda asegurado con un token único. La tableta podrá capturar muestras sin conexión y sincronizarlas con la PC del laboratorio.",
+      },
+      {
+        numero: 4,
+        titulo: "Bloqueo o baja inmediata",
+        descripcion:
+          "Si un dispositivo se extravía o se sospecha alteración, presiona 'Bloquear' para cortar su acceso inmediatamente, o 'Dar de baja' para liberar el cupo de tu licencia.",
+      },
+    ],
+    tips: [
+      {
+        pregunta: "¿Qué pasa si se pierde la conexión a internet en obra?",
+        respuesta:
+          "El dispositivo sigue operando con total normalidad de forma desconectada (offline). Todas las muestras, mediciones y fotos se guardan en la memoria segura del teléfono y se sincronizan al recuperar señal o regresar al Wi-Fi del laboratorio.",
+      },
+      {
+        pregunta: "¿Puede alguien clonar la app a otro teléfono no autorizado?",
+        respuesta:
+          "No. El enrolamiento vincula criptográficamente el identificador único del hardware del teléfono en el Keystore de Android. Si alguien intenta copiar los datos a otro teléfono, el servidor de ENSALIA lo rechazará con error 403.",
+      },
+    ],
+  },
 };

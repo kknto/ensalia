@@ -1,10 +1,11 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { Check, Edit3, Lock, Trash2, X } from "lucide-react";
 import { Sample, statusLabel } from "../types";
 import { SampleEquipmentSnapshot } from "@/components/EquipmentAssignment";
 import FieldSheetPanel from "@/components/FieldSheetPanel";
+import { OpenStreetMap } from "@/components/common/OpenStreetMap";
 
 interface SampleDetailModalProps {
   sample: Sample;
@@ -26,6 +27,23 @@ export function SampleDetailModal({
   onRequestTransition,
 }: SampleDetailModalProps) {
   const status = sample.estatusBitacora;
+
+  const coords = useMemo(() => {
+    if (typeof sample.latitud === "number" && typeof sample.longitud === "number") {
+      return {
+        lat: sample.latitud,
+        lng: sample.longitud,
+        acc: sample.precisionM,
+      };
+    }
+    if (sample.coordenadasColado) {
+      const match = sample.coordenadasColado.match(/(-?\d+\.\d+)\s*,\s*(-?\d+\.\d+)/);
+      if (match) {
+        return { lat: parseFloat(match[1]), lng: parseFloat(match[2]), acc: undefined };
+      }
+    }
+    return null;
+  }, [sample]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -104,6 +122,17 @@ export function SampleDetailModal({
             headers={headers}
             onMessage={onMessage}
           />
+        )}
+
+        {coords && (
+          <div style={{ margin: "16px 0" }}>
+            <OpenStreetMap
+              latitude={coords.lat}
+              longitude={coords.lng}
+              accuracyMeters={coords.acc}
+              title={`Ubicación de Muestreo: ${sample.obra || sample.idMuestra}`}
+            />
+          </div>
         )}
 
         {sample.id && (

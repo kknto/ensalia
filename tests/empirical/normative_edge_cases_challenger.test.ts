@@ -172,18 +172,16 @@ describe("CHALLENGER STRESS TESTS: CASOS DE BORDE NORMATIVOS Y ERGONOMÍA (M1)",
       assert.match(proposalContent, /\.sidebar-nav-section\s*\{[^}]*display:\s*contents/);
     });
 
-    test("Verificación de que el sistema carece actualmente de control de roles (RBAC) en modelo Operador", () => {
+    test("Verificación del soporte de roles (RBAC) en modelo Operador para extensión de campo", () => {
       const schemaPath = path.resolve(process.cwd(), "prisma/schema.prisma");
       const schemaContent = fs.readFileSync(schemaPath, "utf-8");
 
-      // Modelo Operador tiene nombre y activo, pero no rol ni perfiles de acceso departamental
+      // Modelo Operador ahora incluye rol para control de acceso entre campo y laboratorio
       const operadorModelMatch = schemaContent.match(/model Operador \{([^}]+)\}/);
       assert.ok(operadorModelMatch, "Modelo Operador debe existir");
       const operadorBody = operadorModelMatch[1];
 
-      assert.doesNotMatch(operadorBody, /rol\s+/i);
-      assert.doesNotMatch(operadorBody, /departamento\s+/i);
-      assert.doesNotMatch(operadorBody, /permisos\s+/i);
+      assert.match(operadorBody, /rol\s+String/i);
     });
   });
 
