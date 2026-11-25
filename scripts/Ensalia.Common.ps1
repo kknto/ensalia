@@ -1,5 +1,6 @@
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 
 function Get-EnsaliaPaths {
     $appRoot = Split-Path -Parent $PSScriptRoot
@@ -53,7 +54,12 @@ function Initialize-EnsaliaDirectories {
 
 function Get-EnsaliaDatabaseUrl {
     param([Parameter(Mandatory)][string]$DatabasePath)
-    'file:' + ($DatabasePath -replace '\\', '/')
+    $normalized = $DatabasePath -replace '\\', '/'
+    if ($normalized.StartsWith('file:')) {
+        if ($normalized -match '\?') { return $normalized }
+        return $normalized + '?connection_limit=1&busy_timeout=5000'
+    }
+    'file:' + $normalized + '?connection_limit=1&busy_timeout=5000'
 }
 
 function Enter-EnsaliaMutex {
@@ -124,7 +130,9 @@ function New-EnsaliaBackupArchive {
             Get-ChildItem -LiteralPath $Paths.DocumentsDir -File -Recurse | ForEach-Object {
                 $documentRoot = [IO.Path]::GetFullPath($Paths.DocumentsDir).TrimEnd('\')
                 $relative = $_.FullName.Substring($documentRoot.Length).TrimStart('\')
-                if (($relative -replace '\\', '/') -notmatch '^field-sheets/[A-Za-z0-9_-]+/(?:scans/)?[A-Za-z0-9_.-]+\.(?:pdf|png|jpg|webp)$') { throw 'La carpeta documental contiene una ruta no administrada.' }
+                $normalizedRel = $relative -replace '\\', '/'
+                $isValidDoc = $normalizedRel -match '^(field-sheets/[A-Za-z0-9_-]+/(?:scans/)?[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|field-photos/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|scans/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|compression_photos/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|calibrations/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|maintenance/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp))$'
+                if (-not $isValidDoc) { throw 'La carpeta documental contiene una ruta no administrada.' }
                 $target = Join-Path $stagedDocuments $relative
                 $targetParent = Split-Path -Parent $target
                 if (-not (Test-Path -LiteralPath $targetParent)) { New-Item -ItemType Directory -Path $targetParent -Force | Out-Null }

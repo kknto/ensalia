@@ -7,7 +7,9 @@ export function documentsRoot() {
 
 export function resolveDocumentPath(relativePath: string) {
   const normalized = relativePath.replaceAll("\\", "/");
-  if (!/^field-sheets\/[A-Za-z0-9_-]+\/(?:scans\/)?[A-Za-z0-9_.-]+\.(?:pdf|png|jpg|webp)$/.test(normalized)) throw new Error("Ruta documental no permitida.");
+  if (!/^(?:field-sheets\/[A-Za-z0-9_-]+\/(?:scans\/)?[A-Za-z0-9_.-]+|field-photos\/[A-Za-z0-9_-]+\/[A-Za-z0-9_.-]+|scans\/[A-Za-z0-9_.-]+)\.(?:pdf|png|jpg|webp)$/.test(normalized)) {
+    throw new Error("Ruta documental no permitida.");
+  }
   const root = documentsRoot();
   const resolved = path.resolve(root, ...normalized.split("/"));
   if (!resolved.startsWith(`${root}${path.sep}`)) throw new Error("Ruta documental no permitida.");

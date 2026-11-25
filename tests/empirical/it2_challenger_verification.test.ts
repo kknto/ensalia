@@ -681,7 +681,8 @@ describe("Iteration 2 Empirical Challenge: Re-Verification of 5 Hardened Defects
 
     const sofficeCom = '"C:\\Program Files\\LibreOffice\\program\\soffice.com"';
     try {
-      execSync(`${sofficeCom} --headless --convert-to csv --outdir "${testDir}" "${testXlsx}"`, { stdio: "pipe" });
+      const userInstall = `-env:UserInstallation=file:///${path.join(testDir, ".lo_profile_it2").replaceAll("\\", "/")}`;
+      execSync(`${sofficeCom} --headless --norestore --nolockcheck ${userInstall} --convert-to csv --outdir "${testDir}" "${testXlsx}"`, { stdio: "pipe" });
       const testCsv = path.join(testDir, "test_output_it2.csv");
       assert.ok(fs.existsSync(testCsv), "CSV must be produced by LibreOffice");
       const csvContent = fs.readFileSync(testCsv, "utf8");

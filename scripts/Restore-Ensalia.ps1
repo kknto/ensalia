@@ -25,13 +25,14 @@ try {
     $sourceDb = Join-Path $stage $manifest.databaseFile
     if (-not (Test-Path -LiteralPath $sourceDb)) { throw 'El respaldo no contiene la base de datos.' }
     if ((Get-FileHash -Algorithm SHA256 -LiteralPath $sourceDb).Hash -ne $manifest.sha256) { throw 'El respaldo esta danado: la verificacion SHA-256 no coincide.' }
-    if ($manifest.formatVersion -in @(2, 3)) {
+    if ($manifest.formatVersion -in @(2, 3, 4)) {
         if ($null -eq $manifest.files -or @($manifest.files).Count -lt 1) { throw 'El manifiesto no contiene la lista de archivos.' }
         foreach ($entry in @($manifest.files)) {
             $relative = [string]$entry.path
             $isDatabase = $relative -eq $manifest.databaseFile
             $isManagedAsset = $relative -match '^assets/profiles/[A-Za-z0-9_-]+/[a-f0-9-]+\.(png|jpg|webp)$'
-            $isManagedDocument = $manifest.formatVersion -eq 3 -and $relative -match '^documents/field-sheets/[A-Za-z0-9_-]+/(?:scans/)?[A-Za-z0-9_.-]+\.(?:pdf|png|jpg|webp)$'
+            $isManagedDocument = ($manifest.formatVersion -eq 3 -and $relative -match '^documents/field-sheets/[A-Za-z0-9_-]+/(?:scans/)?[A-Za-z0-9_.-]+\.(?:pdf|png|jpg|webp)$') -or
+                                 ($manifest.formatVersion -eq 4 -and $relative -match '^documents/(field-sheets/[A-Za-z0-9_-]+/(?:scans/)?[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|field-photos/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|scans/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|compression_photos/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|calibrations/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp)|maintenance/[A-Za-z0-9_-]+/[A-Za-z0-9_.-]+\.(pdf|png|jpg|webp))$')
             if (-not $isDatabase -and -not $isManagedAsset -and -not $isManagedDocument) { throw 'El respaldo contiene una ruta de recurso no permitida.' }
             $candidate = Join-Path $stage ($relative -replace '/', '\')
             $candidateFull = [IO.Path]::GetFullPath($candidate)
@@ -46,7 +47,7 @@ try {
         $incoming = "$($paths.Database).incoming"
         Copy-Item -LiteralPath $sourceDb -Destination $incoming -Force
         Move-Item -LiteralPath $incoming -Destination $paths.Database -Force
-        if ($manifest.formatVersion -in @(2, 3)) {
+        if ($manifest.formatVersion -in @(2, 3, 4)) {
             $incomingAssets = Join-Path $stage 'assets'
             $previousAssets = "$($paths.AssetsDir).previous-$([guid]::NewGuid().ToString('N'))"
             try {
@@ -60,7 +61,7 @@ try {
                 throw
             }
         }
-        if ($manifest.formatVersion -eq 3) {
+        if ($manifest.formatVersion -in @(3, 4)) {
             $incomingDocuments = Join-Path $stage 'documents'
             $previousDocuments = "$($paths.DocumentsDir).previous-$([guid]::NewGuid().ToString('N'))"
             try {

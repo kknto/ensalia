@@ -31,10 +31,6 @@ before(async () => {
   execFileSync(executable, args, {
     cwd: process.cwd(), env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL! }, stdio: "pipe",
   });
-  const generateArgs = process.platform === "win32" ? ["/d", "/s", "/c", "npx.cmd prisma generate"] : ["prisma", "generate"];
-  execFileSync(executable, generateArgs, {
-    cwd: process.cwd(), env: { ...process.env, DATABASE_URL: process.env.DATABASE_URL! }, stdio: "pipe",
-  });
   ({ prisma } = await import("../src/lib/prisma"));
   ({ POST: assignEquipment } = await import("../src/app/api/muestras/[id]/equipos/route"));
   ({ POST: returnEquipment } = await import("../src/app/api/muestras/[id]/equipos/devolver/route"));

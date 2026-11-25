@@ -43,6 +43,7 @@ prisma/tests/*.sqlite
 /storage/
 public/uploads/
 tests/**/test_output*.xlsx
+tests/**/.lo_profile*
 *.zip
 *.tar.gz
 *.pdf

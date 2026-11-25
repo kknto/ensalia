@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 
-export type StorageCategory = "calibrations" | "compression_photos" | "field_sheets" | "scans";
+export type StorageCategory = "calibrations" | "compression_photos" | "field_sheets" | "scans" | "field_photos";
 
 export interface SavedDocumentResult {
   relativePath: string;
@@ -13,6 +13,9 @@ export interface SavedDocumentResult {
 }
 
 export function getStorageRoot(): string {
+  if (process.env.ENSALIA_DOCUMENTS_DIR) {
+    return path.resolve(process.env.ENSALIA_DOCUMENTS_DIR);
+  }
   const localAppData = process.env.LOCALAPPDATA || path.join(process.env.USERPROFILE || "C:\\Users\\Default", "AppData", "Local");
   const ensaliaPath = path.join(localAppData, "Ensalia", "documents");
   const legacyPath = path.join(localAppData, "LABSICO", "documents");
@@ -23,7 +26,7 @@ export function getStorageRoot(): string {
 
 export async function ensureStorageDirectories(): Promise<string> {
   const root = getStorageRoot();
-  const categories: StorageCategory[] = ["calibrations", "compression_photos", "field_sheets", "scans"];
+  const categories: StorageCategory[] = ["calibrations", "compression_photos", "field_sheets", "scans", "field_photos"];
 
   for (const cat of categories) {
     const dir = path.join(root, cat);
