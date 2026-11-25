@@ -1,0 +1,89 @@
+# ==============================================================================
+# ENSALIA - Reglas Oficiales de Exclusion Git (.gitignore)
+# Protege contra fuga de bases de datos locales, secretos, PDFs generados y caches.
+# ==============================================================================
+
+# --- Dependencias y Gestores de Paquetes ---
+node_modules/
+.pnpm-store/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# --- Artefactos de Compilacion y Empaquetado ---
+.next/
+/out/
+/build/
+/dist/
+/dist_report/
+/dist_installer/
+/build_payload/
+/coverage/
+*.tsbuildinfo
+next-env.d.ts.bak
+
+# --- Bases de Datos SQLite Locales y Archivos WAL/SHM ---
+# Nunca versionar bases de datos reales ni archivos transaccionales locales
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+prisma/*.db*
+prisma/tests/*.sqlite
+
+# --- Documentos Generados, PDFs, Evidencias y Salidas Temporales ---
+/documents/
+/output/
+/tmp/
+/temp/
+/storage/
+public/uploads/
+tests/**/test_output*.xlsx
+*.zip
+*.tar.gz
+*.pdf
+# Excepcion critica: conservar el Route Handler Next.js llamado diario.pdf/
+!src/app/api/ensayos/diario.pdf/
+!src/app/api/ensayos/diario.pdf/**
+
+# --- Registros de Actividad (Logs) ---
+/logs/
+*.log
+start-validation.*.log
+
+# --- Secretos, Certificados y Configuracion Local ---
+# Solo .env.example se versiona como plantilla sanitizada
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+runtime.env
+*.pem
+*.key
+*.pfx
+!.env.example
+
+# --- Metadatos de Agentes, IDEs y Sistema Operativo ---
+.agents/
+.gemini/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes

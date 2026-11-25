@@ -1,0 +1,922 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum EstadoBitacora {
+  BORRADOR
+  REVISADA
+  CERRADA
+  ANULADA
+}
+
+enum EstadoRecoleccion {
+  PENDIENTE
+  RECOLECTADA
+  NO_RECOLECTADA
+}
+
+enum EstadoColado {
+  ABIERTO
+  CERRADO
+  ANULADO
+}
+
+enum TipoEspecimen {
+  CILINDRO_15X30
+  CILINDRO_10X20
+  VIGA_50X15X15
+}
+
+enum TipoCatalogo {
+  CLIENTE
+  OBRA
+  LOCALIZACION
+  CONCRETERA
+  CEMENTO
+  TIPO_CONCRETO
+  OPERADOR
+}
+
+enum EstadoEquipo {
+  DISPONIBLE
+  ASIGNADO
+  MANTENIMIENTO
+  FUERA_SERVICIO
+  BAJA
+  EXTRAVIADO
+}
+
+enum EstadoAsignacionEquipo {
+  ASIGNADA
+  DEVUELTA
+  CANCELADA
+}
+
+enum TipoMovimientoEquipo {
+  ALTA
+  ASIGNACION
+  DEVOLUCION
+  CAMBIO_ESTADO
+  MANTENIMIENTO
+  CALIBRACION
+  AJUSTE
+  BAJA
+}
+
+enum ResultadoCalibracion {
+  APROBADO
+  RECHAZADO
+  LIMITADO
+}
+
+enum EstadoVersionPerfil {
+  BORRADOR
+  VALIDADA
+  PUBLICADA
+  ARCHIVADA
+}
+
+enum TipoRecursoPerfil {
+  LOGO
+  ICONO
+  OTRO
+}
+
+enum EstadoEmisionHojaCampo {
+  EMITIDA
+  SUSTITUIDA
+  ANULADA
+}
+
+enum TipoEventoHojaCampo {
+  EMISION
+  DESCARGA
+  REIMPRESION
+  SUSTITUCION
+  ANULACION
+  DIGITALIZACION
+}
+
+enum TipoArchivoHojaCampo {
+  PDF_ORIGINAL
+  COPIA_CONTROLADA
+  ESCANEO_ORIGINAL
+  IMAGEN_NORMALIZADA
+}
+
+model Operador {
+  id                        String              @id @default(cuid())
+  nombre                    String              @unique
+  activo                    Boolean             @default(true)
+  creadoEn                  DateTime            @default(now())
+  muestras                  Muestra[]           @relation("creador")
+  revisiones                Muestra[]           @relation("revisor")
+  cierres                   Muestra[]           @relation("cerrador")
+  auditorias                Auditoria[]
+  asignacionesEquipo        AsignacionEquipo[]  @relation("asignadorEquipo")
+  devolucionesEquipo        AsignacionEquipo[]  @relation("devolvedorEquipo")
+  calibracionesEquipo       CalibracionEquipo[]
+  movimientosEquipo         MovimientoEquipo[]
+  versionesPerfilCreadas    VersionPerfil[]     @relation("creadorVersionPerfil")
+  versionesPerfilValidadas  VersionPerfil[]     @relation("validadorVersionPerfil")
+  versionesPerfilPublicadas VersionPerfil[]     @relation("publicadorVersionPerfil")
+  publicacionesPerfil       PublicacionPerfil[]
+  emisionesHojaCampo        EmisionHojaCampo[]  @relation("emisorHojaCampo")
+  anulacionesHojaCampo      EmisionHojaCampo[]  @relation("anuladorHojaCampo")
+  eventosHojaCampo          EventoHojaCampo[]
+  coladosCreados            Colado[]            @relation("creadorColado")
+  cargasInventario          CargaInventario[]
+  documentosCalibracion     DocumentoCalibracion[]
+  mantenimientosEquipo      MantenimientoEquipo[]
+  documentosMantenimiento   DocumentoMantenimiento[]
+  despachosChofer           DespachoMuestra[]
+  ensayesCompresion         EnsayeCompresion[]
+  fotosEnsayeCompresion     FotoEnsayeCompresion[]
+}
+
+model Catalogo {
+  id       String       @id @default(cuid())
+  tipo     TipoCatalogo
+  nombre   String
+  activo   Boolean      @default(true)
+  creadoEn DateTime     @default(now())
+
+  @@unique([tipo, nombre])
+  @@index([tipo, activo])
+}
+
+model Muestra {
+  id                        String             @id @default(cuid())
+  idMuestra                 String             @unique
+  fechaMuestreo             DateTime
+  cliente                   String
+  obra                      String
+  localizacion              String?
+  procedencia               String?
+  elemento                  String?
+  ciudad                    String?
+  coordenadasColado         String?
+  direccion                 String?
+  sistema                   String?
+  revenimientoCm            Decimal?
+  toleranciaRevenimiento    String?
+  fcKgCm2                   Decimal?
+  edadCilindro              Int?
+  tipoConcreto              String
+  concretera                String?
+  tmaMm                     Decimal?
+  cemento                   String?
+  noMuestra                 String
+  remision                  String?
+  camion                    String?
+  volumenM3                 Decimal?
+  salidaPlanta              DateTime?
+  llegadaObra               DateTime?
+  inicioDescarga            DateTime?
+  finDescarga               DateTime?
+  elaboracionMuestra        DateTime?
+  revenimientoObtenido      Decimal?
+  revenimientoObtenido2     Decimal?
+  tempAmbienteC             Decimal?
+  observaciones             String?
+  contenidoAirePct          Decimal?
+  placaRevenimiento         Boolean            @default(false)
+  conoRevenimiento          Boolean            @default(false)
+  varilla                   Boolean            @default(false)
+  cucharon                  Boolean            @default(false)
+  termometro                Boolean            @default(false)
+  carretilla                Boolean            @default(false)
+  equipoContenidoAire       Boolean            @default(false)
+  cilindro15x30             Boolean            @default(false)
+  e15x30                    Boolean            @default(false)
+  cilindro10x20             Boolean            @default(false)
+  e10x20                    Boolean            @default(false)
+  viga50x15x15              Boolean            @default(false)
+  v50                       Boolean            @default(false)
+  numeroEspecimenes         Int?
+  laboratoristaCampo        String?
+  residenteObra             String?
+  tempConcretoC             Decimal?
+  ubicacion                 String?
+  estatusBitacora           EstadoBitacora     @default(BORRADOR)
+  estatusRecoleccion        EstadoRecoleccion  @default(PENDIENTE)
+  creadoEn                  DateTime           @default(now())
+  actualizadoEn             DateTime           @updatedAt
+  revisadoEn                DateTime?
+  cerradoEn                 DateTime?
+  creadorId                 String
+  revisorId                 String?
+  cerradorId                String?
+  version                   Int                @default(0)
+  inventarioGestionado      Boolean            @default(false)
+  perfilClienteId           String?
+  versionPerfilId           String?
+  configuracionSnapshotJson Json?
+  coladoId                  String?
+  numeroDentroColado        Int?
+  creador                   Operador           @relation("creador", fields: [creadorId], references: [id])
+  revisor                   Operador?          @relation("revisor", fields: [revisorId], references: [id])
+  cerrador                  Operador?          @relation("cerrador", fields: [cerradorId], references: [id])
+  especimenes               Especimen[]
+  auditorias                Auditoria[]
+  asignacionesEquipo        AsignacionEquipo[]
+  movimientosEquipo         MovimientoEquipo[]
+  perfilCliente             PerfilCliente?     @relation(fields: [perfilClienteId], references: [id])
+  versionPerfil             VersionPerfil?     @relation(fields: [versionPerfilId], references: [id])
+  emisionesHojaCampo        EmisionHojaCampo[]
+  colado                    Colado?            @relation(fields: [coladoId], references: [id], onDelete: Restrict)
+  itemsDespacho             ItemDespachoMuestra[]
+
+  @@unique([coladoId, numeroDentroColado])
+  @@index([fechaMuestreo])
+  @@index([cliente, obra])
+  @@index([estatusBitacora, estatusRecoleccion])
+  @@index([perfilClienteId, versionPerfilId])
+  @@index([coladoId, creadoEn])
+}
+
+model Colado {
+  id                        String         @id @default(cuid())
+  folio                     String         @unique
+  fechaColado               DateTime
+  cliente                   String
+  obra                      String
+  localizacion              String?
+  procedencia               String?
+  elemento                  String?
+  ciudad                    String?
+  coordenadasColado         String?
+  direccion                 String?
+  sistema                   String?
+  revenimientoCm            Decimal?
+  toleranciaRevenimiento    String?
+  volumenM3                 Decimal?
+  fcKgCm2                   Decimal?
+  tipoConcreto              String?
+  concretera                String?
+  tmaMm                     Decimal?
+  cemento                   String?
+  observaciones             String?
+  numeroTomas               Int            @default(1)
+  estado                    EstadoColado   @default(ABIERTO)
+  esSintetico               Boolean        @default(false)
+  version                   Int            @default(0)
+  creadoEn                  DateTime       @default(now())
+  actualizadoEn             DateTime       @updatedAt
+  cerradoEn                 DateTime?
+  anuladoEn                 DateTime?
+  creadorId                 String
+  perfilClienteId           String?
+  versionPerfilId           String?
+  configuracionSnapshotJson Json?
+  creador                   Operador       @relation("creadorColado", fields: [creadorId], references: [id])
+  perfilCliente             PerfilCliente? @relation(fields: [perfilClienteId], references: [id])
+  versionPerfil             VersionPerfil? @relation(fields: [versionPerfilId], references: [id])
+  muestras                  Muestra[]
+  auditorias                Auditoria[]
+
+  @@index([fechaColado])
+  @@index([cliente, obra])
+  @@index([estado, actualizadoEn])
+}
+
+model EmisionHojaCampo {
+  id                        String                 @id
+  muestraId                 String
+  numeroControl             String                 @unique
+  revision                  Int
+  estado                    EstadoEmisionHojaCampo @default(EMITIDA)
+  versionMuestra            Int
+  perfilClienteId           String?
+  versionPerfilId           String?
+  plantillaCodigo           String                 @default("HOJA_CAMPO_CONCRETO")
+  plantillaVersion          Int                    @default(1)
+  datosSnapshotJson         Json
+  configuracionSnapshotJson Json?
+  rutaPdf                   String
+  pdfSha256                 String
+  tamanoPdf                 Int
+  tokenQrHash               String                 @unique
+  emitidaPorId              String
+  emitidaEn                 DateTime               @default(now())
+  sustituyeAId              String?                @unique
+  motivoAnulacion           String?
+  anuladaPorId              String?
+  anuladaEn                 DateTime?
+  muestra                   Muestra                @relation(fields: [muestraId], references: [id], onDelete: Restrict)
+  emitidaPor                Operador               @relation("emisorHojaCampo", fields: [emitidaPorId], references: [id])
+  anuladaPor                Operador?              @relation("anuladorHojaCampo", fields: [anuladaPorId], references: [id])
+  sustituyeA                EmisionHojaCampo?      @relation("sustitucionHojaCampo", fields: [sustituyeAId], references: [id])
+  sustituidaPor             EmisionHojaCampo?      @relation("sustitucionHojaCampo")
+  eventos                   EventoHojaCampo[]
+  archivos                  ArchivoHojaCampo[]
+
+  @@unique([muestraId, revision])
+  @@index([muestraId, estado, emitidaEn])
+}
+
+model EventoHojaCampo {
+  id          String              @id @default(cuid())
+  emisionId   String
+  operadorId  String
+  tipo        TipoEventoHojaCampo
+  detalleJson Json?
+  creadoEn    DateTime            @default(now())
+  emision     EmisionHojaCampo    @relation(fields: [emisionId], references: [id], onDelete: Restrict)
+  operador    Operador            @relation(fields: [operadorId], references: [id])
+
+  @@index([emisionId, creadoEn])
+}
+
+model ArchivoHojaCampo {
+  id           String               @id @default(cuid())
+  emisionId    String
+  tipo         TipoArchivoHojaCampo
+  nombreSeguro String
+  mimeType     String
+  tamano       Int
+  hashSha256   String
+  rutaRelativa String               @unique
+  creadoEn     DateTime             @default(now())
+  emision      EmisionHojaCampo     @relation(fields: [emisionId], references: [id], onDelete: Restrict)
+
+  @@index([emisionId, tipo, creadoEn])
+}
+
+model PerfilCliente {
+  id                 String                @id @default(cuid())
+  clave              String                @unique
+  nombreInterno      String
+  esPlantillaSistema Boolean               @default(false)
+  activo             Boolean               @default(true)
+  versionPublicadaId String?               @unique
+  creadoEn           DateTime              @default(now())
+  actualizadoEn      DateTime              @updatedAt
+  versiones          VersionPerfil[]       @relation("versionesPerfil")
+  versionPublicada   VersionPerfil?        @relation("versionPublicada", fields: [versionPublicadaId], references: [id])
+  muestras           Muestra[]
+  publicaciones      PublicacionPerfil[]
+  valoresCatalogo    ValorCatalogoPerfil[]
+  secuenciasFolio    SecuenciaFolio[]
+  colados            Colado[]
+
+  @@index([activo, nombreInterno])
+}
+
+model ValorCatalogoPerfil {
+  id            String        @id @default(cuid())
+  perfilId      String
+  tipo          String
+  clave         String
+  nombre        String
+  orden         Int           @default(0)
+  activo        Boolean       @default(true)
+  metadataJson  Json?
+  creadoEn      DateTime      @default(now())
+  actualizadoEn DateTime      @updatedAt
+  perfil        PerfilCliente @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+
+  @@unique([perfilId, tipo, clave])
+  @@index([perfilId, tipo, activo, orden])
+}
+
+model SecuenciaFolio {
+  id            String        @id @default(cuid())
+  perfilId      String
+  clave         String
+  anio          Int
+  ultimoNumero  Int           @default(0)
+  actualizadoEn DateTime      @updatedAt
+  perfil        PerfilCliente @relation(fields: [perfilId], references: [id], onDelete: Cascade)
+
+  @@unique([perfilId, clave, anio])
+}
+
+model VersionPerfil {
+  id                      String              @id @default(cuid())
+  perfilId                String
+  numeroVersion           Int
+  estado                  EstadoVersionPerfil @default(BORRADOR)
+  basadaEnId              String?
+  esquemaVersion          Int                 @default(1)
+  configuracionJson       Json
+  checksum                String?
+  notas                   String?
+  creadaPorId             String
+  validadaPorId           String?
+  publicadaPorId          String?
+  creadaEn                DateTime            @default(now())
+  validadaEn              DateTime?
+  publicadaEn             DateTime?
+  perfil                  PerfilCliente       @relation("versionesPerfil", fields: [perfilId], references: [id], onDelete: Cascade)
+  perfilPublicado         PerfilCliente?      @relation("versionPublicada")
+  basadaEn                VersionPerfil?      @relation("derivacionPerfil", fields: [basadaEnId], references: [id])
+  derivadas               VersionPerfil[]     @relation("derivacionPerfil")
+  creadaPor               Operador            @relation("creadorVersionPerfil", fields: [creadaPorId], references: [id])
+  validadaPor             Operador?           @relation("validadorVersionPerfil", fields: [validadaPorId], references: [id])
+  publicadaPor            Operador?           @relation("publicadorVersionPerfil", fields: [publicadaPorId], references: [id])
+  recursos                RecursoPerfil[]
+  muestras                Muestra[]
+  publicacionesAnteriores PublicacionPerfil[] @relation("versionAnteriorPerfil")
+  publicacionesNuevas     PublicacionPerfil[] @relation("versionNuevaPerfil")
+  colados                 Colado[]
+
+  @@unique([perfilId, numeroVersion])
+  @@index([perfilId, estado])
+}
+
+model RecursoPerfil {
+  id              String            @id @default(cuid())
+  versionPerfilId String
+  tipo            TipoRecursoPerfil
+  nombreSeguro    String
+  mimeType        String
+  tamano          Int
+  hashSha256      String
+  rutaRelativa    String
+  creadoEn        DateTime          @default(now())
+  versionPerfil   VersionPerfil     @relation(fields: [versionPerfilId], references: [id], onDelete: Cascade)
+
+  @@index([versionPerfilId, tipo])
+}
+
+model PublicacionPerfil {
+  id                String         @id @default(cuid())
+  perfilId          String
+  versionAnteriorId String?
+  versionNuevaId    String
+  operadorId        String
+  respaldoRuta      String?
+  resultado         String
+  detalleJson       Json?
+  creadoEn          DateTime       @default(now())
+  perfil            PerfilCliente  @relation(fields: [perfilId], references: [id])
+  versionAnterior   VersionPerfil? @relation("versionAnteriorPerfil", fields: [versionAnteriorId], references: [id])
+  versionNueva      VersionPerfil  @relation("versionNuevaPerfil", fields: [versionNuevaId], references: [id])
+  operador          Operador       @relation(fields: [operadorId], references: [id])
+
+  @@index([perfilId, creadoEn])
+}
+
+model Especimen {
+  id                 String             @id @default(cuid())
+  muestraId          String
+  numero             Int
+  edadDias           Int?
+  tipo               TipoEspecimen
+  numeroMolde        String?
+  fechaEnsaye        DateTime?
+  muestra            Muestra            @relation(fields: [muestraId], references: [id], onDelete: Cascade)
+  asignacionesEquipo AsignacionEquipo[]
+  ensayeCompresion   EnsayeCompresion?
+  itemsDespacho      ItemDespachoMuestra[]
+
+  @@unique([muestraId, numero])
+  @@index([fechaEnsaye])
+}
+
+model TipoEquipo {
+  id                   String   @id @default(cuid())
+  codigo               String   @unique
+  nombre               String
+  requiereSerie        Boolean  @default(true)
+  requiereCalibracion  Boolean  @default(false)
+  esMolde              Boolean  @default(false)
+  obligatorioEnMuestra Boolean  @default(false)
+  activo               Boolean  @default(true)
+  creadoEn             DateTime @default(now())
+  actualizadoEn        DateTime @updatedAt
+  equipos              Equipo[]
+  cargasInventario     CargaInventario[]
+
+  @@index([activo, nombre])
+}
+
+model Equipo {
+  id                      String              @id @default(cuid())
+  tipoId                  String
+  numeroSerie             String?
+  codigoInterno           String              @unique
+  marca                   String?
+  modelo                  String?
+  descripcion             String?
+  estado                  EstadoEquipo        @default(DISPONIBLE)
+  ubicacion               String?
+  fechaAlta               DateTime            @default(now())
+  fechaBaja               DateTime?
+  motivoBaja              String?
+  calibracionVigenteHasta DateTime?
+  frecuenciaCalibracionMeses Int?
+  frecuenciaMantenimientoMeses Int?
+  mantenimientoVigenteHasta DateTime?
+  notas                   String?
+  version                 Int                 @default(0)
+  creadoEn                DateTime            @default(now())
+  actualizadoEn           DateTime            @updatedAt
+  cargaInventarioId       String?
+  tipo                    TipoEquipo          @relation(fields: [tipoId], references: [id])
+  cargaInventario         CargaInventario?    @relation(fields: [cargaInventarioId], references: [id], onDelete: SetNull)
+  asignaciones            AsignacionEquipo[]
+  calibraciones           CalibracionEquipo[]
+  mantenimientos          MantenimientoEquipo[]
+  ensayesPrensa           EnsayeCompresion[]
+  movimientos             MovimientoEquipo[]
+
+  @@index([tipoId, estado])
+  @@index([calibracionVigenteHasta])
+  @@index([cargaInventarioId])
+}
+
+model CargaInventario {
+  id                 String             @id @default(cuid())
+  idempotencyKey     String             @unique
+  operadorId         String
+  tipoId             String
+  metodo             String
+  estado             String
+  cantidadSolicitada Int
+  cantidadCreada     Int                @default(0)
+  contenidoHash      String
+  parametrosJson     Json?
+  resultadoJson      Json?
+  creadoEn           DateTime           @default(now())
+  completadoEn       DateTime?
+  operador           Operador           @relation(fields: [operadorId], references: [id])
+  tipo               TipoEquipo         @relation(fields: [tipoId], references: [id])
+  equipos            Equipo[]
+  movimientos        MovimientoEquipo[]
+
+  @@index([creadoEn])
+  @@index([tipoId, creadoEn])
+}
+
+model AsignacionEquipo {
+  id                      String                 @id @default(cuid())
+  muestraId               String
+  equipoId                String
+  especimenId             String?
+  estado                  EstadoAsignacionEquipo @default(ASIGNADA)
+  asignadoEn              DateTime               @default(now())
+  asignadoPorId           String
+  devueltoEn              DateTime?
+  devueltoPorId           String?
+  observacionesEntrega    String?
+  observacionesDevolucion String?
+  tipoCodigoSnapshot      String
+  tipoNombreSnapshot      String
+  codigoInternoSnapshot   String
+  numeroSerieSnapshot     String?
+  muestra                 Muestra                @relation(fields: [muestraId], references: [id])
+  equipo                  Equipo                 @relation(fields: [equipoId], references: [id])
+  especimen               Especimen?             @relation(fields: [especimenId], references: [id])
+  asignadoPor             Operador               @relation("asignadorEquipo", fields: [asignadoPorId], references: [id])
+  devueltoPor             Operador?              @relation("devolvedorEquipo", fields: [devueltoPorId], references: [id])
+
+  @@index([muestraId, estado])
+  @@index([equipoId, estado])
+  @@index([especimenId])
+}
+
+model CalibracionEquipo {
+  id               String               @id @default(cuid())
+  equipoId         String
+  fechaCalibracion DateTime
+  vigenteHasta     DateTime?
+  resultado        ResultadoCalibracion
+  certificado      String?
+  proveedor        String?
+  observaciones    String?
+  laboratorioCalibracion String?
+  numeroAcreditacion     String?
+  incertidumbre          String?
+  registradoPorId  String
+  creadoEn         DateTime             @default(now())
+  equipo           Equipo               @relation(fields: [equipoId], references: [id])
+  registradoPor    Operador             @relation(fields: [registradoPorId], references: [id])
+  documento        DocumentoCalibracion?
+
+  @@index([equipoId, fechaCalibracion])
+  @@index([vigenteHasta])
+}
+
+model MovimientoEquipo {
+  id            String               @id @default(cuid())
+  equipoId      String
+  muestraId     String?
+  cargaInventarioId String?
+  operadorId    String
+  tipo          TipoMovimientoEquipo
+  estadoAntes   String?
+  estadoDespues String?
+  detalleJson   Json?
+  creadoEn      DateTime             @default(now())
+  equipo        Equipo               @relation(fields: [equipoId], references: [id])
+  muestra       Muestra?             @relation(fields: [muestraId], references: [id])
+  cargaInventario CargaInventario?   @relation(fields: [cargaInventarioId], references: [id], onDelete: SetNull)
+  operador      Operador             @relation(fields: [operadorId], references: [id])
+
+  @@index([equipoId, creadoEn])
+  @@index([muestraId, creadoEn])
+  @@index([cargaInventarioId, creadoEn])
+}
+
+model Auditoria {
+  id            String   @id @default(cuid())
+  muestraId     String?
+  operadorId    String
+  accion        String
+  estadoAntes   String?
+  estadoDespues String?
+  motivo        String?
+  cambiosJson   Json?
+  creadoEn      DateTime @default(now())
+  muestra       Muestra? @relation(fields: [muestraId], references: [id], onDelete: SetNull)
+  coladoId      String?
+  colado        Colado?  @relation(fields: [coladoId], references: [id], onDelete: SetNull)
+  operador      Operador @relation(fields: [operadorId], references: [id])
+
+  @@index([muestraId, creadoEn])
+  @@index([coladoId, creadoEn])
+}
+
+enum NivelSuscripcion {
+  STARTER
+  ESTANDAR
+  PROFESIONAL
+  EMPRESARIAL
+}
+
+enum EstadoSuscripcion {
+  ACTIVA
+  DE_PRUEBA
+  SUSPENDIDA
+  VENCIDA
+  CANCELADA
+}
+
+enum CodigoModulo {
+  CAPTURA_BASE
+  REGISTROS_BITACORA
+  PERSONALIZACION_PERFIL
+  PROGRAMACION_ENSAYOS
+  HOJAS_CAMPO
+  LOGISTICA_SALIDAS
+  INVENTARIO_EQUIPOS
+  CALIBRACION_MANTENIMIENTO
+  CURVAS_FC_FOTOS
+  REPORTES_AVANZADOS
+  DIGITALIZACION_OCR
+}
+
+model SuscripcionLocal {
+  id                  String              @id @default(cuid())
+  plan                NivelSuscripcion    @default(STARTER)
+  estado              EstadoSuscripcion   @default(ACTIVA)
+  licenciaToken       String?             @unique
+  titular             String
+  emisor              String              @default("ENSALIA Cloud")
+  validaDesde         DateTime            @default(now())
+  validaHasta         DateTime?
+  dispositivosMaximos Int                 @default(1)
+  firmaDigitalSha256  String?
+  creadoEn            DateTime            @default(now())
+  actualizadoEn       DateTime            @updatedAt
+  flags               ModuloFeatureFlag[]
+
+  @@index([plan, estado])
+}
+
+model ModuloFeatureFlag {
+  id            String           @id @default(cuid())
+  suscripcionId String
+  modulo        CodigoModulo
+  habilitado    Boolean          @default(false)
+  limitesJson   Json?
+  expiraEn      DateTime?
+  actualizadoEn DateTime         @updatedAt
+  suscripcion   SuscripcionLocal @relation(fields: [suscripcionId], references: [id], onDelete: Cascade)
+
+  @@unique([suscripcionId, modulo])
+  @@index([modulo, habilitado])
+}
+
+model DocumentoCalibracion {
+  id             String            @id @default(cuid())
+  calibracionId  String            @unique
+  nombreArchivo  String
+  nombreSeguro   String
+  mimeType       String            @default("application/pdf")
+  tamano         Int
+  hashSha256     String
+  rutaRelativa   String            @unique
+  creadoEn       DateTime          @default(now())
+  subidoPorId    String
+  calibracion    CalibracionEquipo @relation(fields: [calibracionId], references: [id], onDelete: Cascade)
+  subidoPor      Operador          @relation(fields: [subidoPorId], references: [id])
+
+  @@index([calibracionId, creadoEn])
+}
+
+model MantenimientoEquipo {
+  id                   String                 @id @default(cuid())
+  equipoId             String
+  tipo                 TipoMantenimiento      @default(PREVENTIVO)
+  estado               EstadoMantenimiento    @default(PROGRAMADO)
+  fechaProgramada      DateTime
+  fechaRealizada       DateTime?
+  proximoMantenimiento DateTime?
+  proveedor            String?
+  costo                Decimal?
+  descripcion          String
+  tareasRealizadas     String?
+  piezasReemplazadas   String?
+  registradoPorId      String
+  creadoEn             DateTime               @default(now())
+  actualizadoEn        DateTime               @updatedAt
+  equipo               Equipo                 @relation(fields: [equipoId], references: [id], onDelete: Cascade)
+  registradoPor        Operador               @relation(fields: [registradoPorId], references: [id])
+  documentos           DocumentoMantenimiento[]
+
+  @@index([equipoId, fechaProgramada])
+  @@index([estado, fechaProgramada])
+}
+
+model DocumentoMantenimiento {
+  id              String              @id @default(cuid())
+  mantenimientoId String
+  nombreArchivo   String
+  nombreSeguro    String
+  mimeType        String              @default("application/pdf")
+  tamano          Int
+  hashSha256      String
+  rutaRelativa    String              @unique
+  creadoEn        DateTime            @default(now())
+  subidoPorId     String
+  mantenimiento   MantenimientoEquipo @relation(fields: [mantenimientoId], references: [id], onDelete: Cascade)
+  subidoPor       Operador            @relation(fields: [subidoPorId], references: [id])
+
+  @@index([mantenimientoId])
+}
+
+enum TipoMantenimiento {
+  PREVENTIVO
+  CORRECTIVO
+  AJUSTE
+  VERIFICACION
+}
+
+enum EstadoMantenimiento {
+  PROGRAMADO
+  EN_PROCESO
+  COMPLETADO
+  CANCELADO
+}
+
+model DespachoMuestra {
+  id               String                @id @default(cuid())
+  folio            String                @unique
+  tipo             TipoDespacho          @default(RECOLECCION_OBRA)
+  estado           EstadoDespacho        @default(PROGRAMADO)
+  fechaProgramada  DateTime
+  fechaSalida      DateTime?
+  fechaRetorno     DateTime?
+  choferOperadorId String
+  vehiculo         String?
+  placas           String?
+  origen           String?
+  destino          String?
+  observaciones    String?
+  creadoEn         DateTime              @default(now())
+  actualizadoEn    DateTime              @updatedAt
+  choferOperador   Operador              @relation(fields: [choferOperadorId], references: [id])
+  items            ItemDespachoMuestra[]
+
+  @@index([fechaProgramada, estado])
+  @@index([choferOperadorId, estado])
+}
+
+model ItemDespachoMuestra {
+  id                  String             @id @default(cuid())
+  despachoId          String
+  muestraId           String
+  especimenId         String?
+  estadoItem          EstadoItemDespacho @default(PENDIENTE)
+  horaRecoleccion     DateTime?
+  tempRecoleccionC    Decimal?
+  condicionEspecimen  String?
+  observaciones       String?
+  firmaRecibidoNombre String?
+  firmaRecibidoCargo  String?
+  creadoEn            DateTime           @default(now())
+  actualizadoEn       DateTime           @updatedAt
+  despacho            DespachoMuestra    @relation(fields: [despachoId], references: [id], onDelete: Cascade)
+  muestra             Muestra            @relation(fields: [muestraId], references: [id], onDelete: Restrict)
+  especimen           Especimen?         @relation(fields: [especimenId], references: [id], onDelete: SetNull)
+
+  @@unique([despachoId, muestraId, especimenId])
+  @@index([muestraId])
+  @@index([despachoId, estadoItem])
+}
+
+enum TipoDespacho {
+  RECOLECCION_OBRA
+  TRASLADO_LABORATORIO
+  ENTREGA_CLIENTE
+}
+
+enum EstadoDespacho {
+  PROGRAMADO
+  EN_TRANSITO
+  COMPLETADO
+  CANCELADO
+  INCIDENCIA
+}
+
+enum EstadoItemDespacho {
+  PENDIENTE
+  RECOLECTADO
+  NO_LOCALIZADO
+  RECHAZADO
+  DANADO
+}
+
+model EnsayeCompresion {
+  id                   String                 @id @default(cuid())
+  especimenId          String                 @unique
+  equipoPrensaId       String?
+  operadorEnsayeId     String
+  fechaHoraEnsaye      DateTime
+  edadRealDias         Int
+  diametroMm           Decimal
+  longitudMm           Decimal
+  areaCm2              Decimal
+  masaG                Decimal?
+  densidadKgM3         Decimal?
+  cargaMaximaKn        Decimal
+  cargaMaximaKg        Decimal
+  resistenciaKgCm2     Decimal
+  porcentajeFc         Decimal?
+  tipoFalla            TipoFallaConcreto      @default(CONO_TIPO_1)
+  condicionHumedad     CondicionHumedad       @default(HUMEDO_SATURADO)
+  cumpleEspecificacion Boolean                @default(true)
+  observaciones        String?
+  creadoEn             DateTime               @default(now())
+  actualizadoEn        DateTime               @updatedAt
+  especimen            Especimen              @relation(fields: [especimenId], references: [id], onDelete: Cascade)
+  equipoPrensa         Equipo?                @relation(fields: [equipoPrensaId], references: [id], onDelete: SetNull)
+  operadorEnsaye       Operador               @relation(fields: [operadorEnsayeId], references: [id])
+  fotos                FotoEnsayeCompresion[]
+
+  @@index([fechaHoraEnsaye])
+  @@index([equipoPrensaId])
+  @@index([operadorEnsayeId])
+}
+
+model FotoEnsayeCompresion {
+  id            String            @id @default(cuid())
+  ensayeId      String
+  tipo          TipoFotoEnsaye    @default(ROTURA_FRACTURA)
+  nombreArchivo String
+  nombreSeguro  String
+  mimeType      String            @default("image/webp")
+  tamano        Int
+  hashSha256    String
+  rutaRelativa  String            @unique
+  anchoPx       Int?
+  altoPx        Int?
+  capturadaEn   DateTime?
+  creadoEn      DateTime          @default(now())
+  subidoPorId   String
+  ensaye        EnsayeCompresion  @relation(fields: [ensayeId], references: [id], onDelete: Cascade)
+  subidoPor     Operador          @relation(fields: [subidoPorId], references: [id])
+
+  @@index([ensayeId, tipo])
+}
+
+enum TipoFallaConcreto {
+  CONO_TIPO_1
+  CONO_Y_DIVIDIDO_TIPO_2
+  COLUMNA_TIPO_3
+  CIZALLA_TIPO_4
+  ESQUINA_TIPO_5
+  PUNTUAL_TIPO_6
+  OTRA
+}
+
+enum CondicionHumedad {
+  HUMEDO_SATURADO
+  SUPERFICIALMENTE_SECO
+  SECO_AIRE
+}
+
+enum TipoFotoEnsaye {
+  PRE_ROTURA
+  ROTURA_FRACTURA
+  DETALLE_FALLA
+  MANOMETRO_PRENSA
+}

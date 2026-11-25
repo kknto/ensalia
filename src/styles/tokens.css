@@ -1,0 +1,96 @@
+/**
+ * ENSALIA Design Tokens & CSS Custom Properties
+ * Foundation for Modular Architecture and Anti-AI Aesthetic
+ */
+
+:root {
+  /* Brand Primary Palette (Ensalia Industrial Blue) */
+  --ensalia-primary-900: #0a2540;
+  --ensalia-primary-800: #0f3d64;
+  --ensalia-primary-700: #145388;
+  --ensalia-primary-600: #1a6aac;
+  --ensalia-primary-500: #2082d0;
+  --ensalia-primary-400: #499ded;
+  --ensalia-primary-100: #d8ecff;
+  --ensalia-primary-50:  #edf5fd;
+
+  /* Surfaces & Backgrounds */
+  --ensalia-bg-app: #f8fafc;
+  --ensalia-surface-card: #ffffff;
+  --ensalia-surface-subtle: #f1f5f9;
+  --ensalia-surface-hover: #e2e8f0;
+  --ensalia-surface-active: #cbd5e1;
+
+  /* Borders & Dividers */
+  --ensalia-border-subtle: #e2e8f0;
+  --ensalia-border-default: #cbd5e1;
+  --ensalia-border-strong: #94a3b8;
+  --ensalia-border-focus: #2082d0;
+
+  /* Typography Colors */
+  --ensalia-text-main: #0f172a;
+  --ensalia-text-muted: #475569;
+  --ensalia-text-faint: #64748b;
+  --ensalia-text-inverse: #ffffff;
+
+  /* Status Colors */
+  --ensalia-success: #10b981;
+  --ensalia-success-bg: #ecfdf5;
+  --ensalia-success-border: #a7f3d0;
+  --ensalia-success-text: #065f46;
+
+  --ensalia-warning: #f59e0b;
+  --ensalia-warning-bg: #fffbeb;
+  --ensalia-warning-border: #fde68a;
+  --ensalia-warning-text: #92400e;
+
+  --ensalia-danger: #ef4444;
+  --ensalia-danger-bg: #fef2f2;
+  --ensalia-danger-border: #fecaca;
+  --ensalia-danger-text: #991b1b;
+
+  --ensalia-info: #0284c7;
+  --ensalia-info-bg: #f0f9ff;
+  --ensalia-info-border: #bae6fd;
+  --ensalia-info-text: #075985;
+
+  /* Elevation Shadows */
+  --ensalia-shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --ensalia-shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --ensalia-shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --ensalia-shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --ensalia-shadow-modal: 0 20px 25px -5px rgba(15, 23, 42, 0.15), 0 8px 10px -6px rgba(15, 23, 42, 0.08);
+
+  /* Border Radii */
+  --ensalia-radius-sm: 4px;
+  --ensalia-radius-md: 6px;
+  --ensalia-radius-lg: 8px;
+  --ensalia-radius-xl: 12px;
+  --ensalia-radius-full: 9999px;
+
+  /* Shimmer Animation for Zero-CLS Skeleton Loading */
+  --ensalia-skeleton-from: #e2e8f0;
+  --ensalia-skeleton-via: #f1f5f9;
+  --ensalia-skeleton-to: #e2e8f0;
+}
+
+@keyframes ensalia-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.ensalia-shimmer-effect {
+  background: linear-gradient(
+    90deg,
+    var(--ensalia-skeleton-from) 25%,
+    var(--ensalia-skeleton-via) 50%,
+    var(--ensalia-skeleton-to) 75%
+  );
+  background-size: 200% 100%;
+  animation: ensalia-shimmer 1.5s infinite;
+}
+

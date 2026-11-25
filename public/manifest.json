@@ -1,0 +1,25 @@
+{
+  "name": "ENSALIA Laboratorio - Control de Concreto",
+  "short_name": "ENSALIA",
+  "description": "Sistema metrológico industrial de control de calidad de concreto y ensayes de compresión ASTM C39 / NMX-C-083.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0A0A0A",
+  "theme_color": "#123D31",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
+
